@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="./assets/logo/av-logo.png">
+
+    <!--CSS-->
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./style.css">
+
+    <!--JS and ImportMap-->
+    <script type="importmap">
+        {
+            "imports": {
+                "bootstrap": "./node_modules/bootstrap/dist/js/bootstrap.esm.min.js",
+                "axios": "./node_modules/axios/dist/esm/axios.js",
+                "chartjs": "./node_modules/chartjs/chart.js",
+                "@popperjs/core": "./node_modules/@popperjs/core/dist/esm/popper-base.js"
+            }
+        }
+    </script>
+    <script type="module" defer src="./js/DOM.js"></script>
+
+    <title>Alpha Vantage</title>
+</head>
+
+<body class="bg-dark">
+    <nav class="navbar navbar-dark bg-dark px-3">
+        <a class="navbar-brand" href=" #"><b>ALPHA</b> VANTAGE</a>
+
+        <div class="d-flex justify-content-sm-end justify-content-start">
+            <form class="d-flex" role="search">
+                <input class="form-control form-control-sm me-2 bg-secondary border-0 text-white" type="search"
+                    placeholder="Cerca azienda..." aria-label="Cerca azienda" />
+            </form>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+
+        <div class="collapse navbar-collapse" id="navContent">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0 d-md-flex align-items-sm-end">
+                <li class="nav-item border-bottom border-2"><a class="nav-link active pe-none">Database JSON-Server</a></li>
+                <li class="nav-item border-bottom border-2 border-secondary"><a class="nav-link">Database Alpha Vantage</a></li>
+            </ul>
+        </div>
+    </nav>
+</body>
+</html>
