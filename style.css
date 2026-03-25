@@ -12,3 +12,9 @@
 .nav-item{
     width: fit-content;
 }
+
+@media (max-width: 489px){
+    .navbar-nav{
+        display: block !important;
+    }
+}
