@@ -14,10 +14,19 @@
     <script type="importmap">
         {
             "imports": {
-                "bootstrap": "./node_modules/bootstrap/dist/js/bootstrap.esm.min.js",
-                "axios": "./node_modules/axios/dist/esm/axios.js",
-                "chartjs": "./node_modules/chartjs/chart.js",
-                "@popperjs/core": "./node_modules/@popperjs/core/dist/esm/popper-base.js"
+                "axios": "https://ga.jspm.io/npm:axios@1.13.6/index.js",
+                "bootstrap": "https://ga.jspm.io/npm:bootstrap@5.3.8/dist/js/bootstrap.esm.js",
+                "chart.js": "https://ga.jspm.io/npm:chart.js@4.5.1/dist/chart.js",
+                "chart.js/auto": "https://ga.jspm.io/npm:chart.js@4.5.1/auto/auto.js"
+            },
+            "scopes": {
+                "https://ga.jspm.io/": {
+                    "#lib/adapters/http.js": "https://ga.jspm.io/npm:axios@1.13.6/lib/helpers/null.js",
+                    "#lib/platform/node/classes/FormData.js": "https://ga.jspm.io/npm:axios@1.13.6/lib/helpers/null.js",
+                    "#lib/platform/node/index.js": "https://ga.jspm.io/npm:axios@1.13.6/lib/platform/browser/index.js",
+                    "@kurkle/color": "https://ga.jspm.io/npm:@kurkle/color@0.3.4/dist/color.esm.js",
+                    "@popperjs/core": "https://ga.jspm.io/npm:@popperjs/core@2.11.8/lib/index.js"
+                }
             }
         }
     </script>
@@ -43,8 +52,10 @@
 
         <div class="collapse navbar-collapse" id="navContent">
             <ul class="navbar-nav me-auto mb-2 mb-sm-0 d-flex align-items-end">
-                <li class="nav-item border-bottom border-2"><a class="nav-link active pe-none">Database JSON-Server</a></li>
-                <li class="nav-item border-bottom border-2 border-secondary"><a class="nav-link">Database Alpha Vantage</a></li>
+                <li class="nav-item border-bottom border-2"><a class="nav-link active pe-none">Database JSON-Server</a>
+                </li>
+                <li class="nav-item border-bottom border-2 border-secondary"><a class="nav-link">Database Alpha
+                        Vantage</a></li>
             </ul>
         </div>
     </nav>
@@ -55,8 +66,10 @@
                 1
             </section>
 
-            <section class="rounded bg-dark-subtle col-6">
-                2
+            <section class="rounded bg-dark-subtle col-6 h-auto chart-container">
+                <div class="position-relative w-100 h-100">
+                    <canvas id="chartCanvas"></canvas>
+                </div>
             </section>
         </div>
 
@@ -68,4 +81,5 @@
 
     </div>
 </body>
+
 </html>

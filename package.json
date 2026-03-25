@@ -1,7 +1,8 @@
 {
+  "name": "alphavantage",
   "dependencies": {
     "axios": "^1.13.6",
     "bootstrap": "^5.3.8",
-    "chartjs": "^0.3.24"
+    "chart.js": "^4.5.1"
   }
 }

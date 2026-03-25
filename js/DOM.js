@@ -1,4 +1,6 @@
 import * as bootstrap from "bootstrap";
+import { createChart } from "./Chart.js";
+import "./Request.js";
 
 document
     .querySelectorAll("a.nav-link")
@@ -19,3 +21,5 @@ document
                 }
             })
     });
+
+//createChart("Example", "chartCanvas", "pie", [1, 2, 3, 4, 5], [5, 4, 3, 2, 1]);
