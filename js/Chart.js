@@ -13,7 +13,7 @@ export function updateChart(title, keys, values){
     if(!(title in Charts)){
         return;
     }
-    keys.forEach(key => Charts["title"].data.labels.push(keys));
+    keys.forEach(key => Charts["title"].data.labels.push(key));
     values.forEach(value => Charts["title"].data.datasets[0].data.push(value));
     Charts[title].update();
 }
