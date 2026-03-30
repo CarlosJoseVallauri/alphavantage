@@ -13,11 +13,6 @@
     width: fit-content;
 }
 
-.chart-container{
-    min-width: 200px;
-    min-height: 200px;
-}
-
 @media (max-width: 489px){
     .navbar-nav{
         display: block !important;

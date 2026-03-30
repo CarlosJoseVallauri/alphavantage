@@ -1,6 +1,6 @@
 import * as bootstrap from "bootstrap";
 import { createChart } from "./Chart.js";
-import "./Request.js";
+import ajax from "../lib/Ajax.js";
 
 document
     .querySelectorAll("a.nav-link")
@@ -22,4 +22,17 @@ document
             })
     });
 
-//createChart("Example", "chartCanvas", "pie", [1, 2, 3, 4, 5], [5, 4, 3, 2, 1]);
+document
+    .querySelector("input[type=search]")
+    .addEventListener("input", async function(){
+        const Name = this.value;
+        const Results = (await ajax.sendRequest("GET", `${ajax.JS_URL}/SYMBOL_SEARCH`, {name: Name}))?.data;
+
+        if(Results.length != 1){
+            return;
+        }
+        
+        const Values = (await ajax.sendRequest("GET", `${ajax.JS_URL}/TIME_SERIES_WEEKLY`, {}))?.data;
+
+        createChart(`Ultimi stock per ${Name}`, "chartCanvas", "bar", [1, 2, 3, 4, 5], [5, 4, 3, 2, 1]); 
+    });

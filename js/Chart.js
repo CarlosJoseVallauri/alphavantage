@@ -6,11 +6,11 @@ export function createChart(title, canvas, type, keys, values) {
     const Config = createConfig(title, type, keys, values);
     const chart = new Chart(document.getElementById(canvas), Config);
 
-    Charts[title] = {chart, Config};
+    Charts[title] = { chart, Config };
 }
 
-export function updateChart(title, keys, values){
-    if(!(title in Charts)){
+export function updateChart(title, keys, values) {
+    if (!(title in Charts)) {
         return;
     }
     keys.forEach(key => Charts["title"].data.labels.push(key));
@@ -28,23 +28,34 @@ function createConfig(title, type, keys, values) {
         options: {
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        color: "#ABB"
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: "#ABB"
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    font: {
+                        size: 20,
+                        weight: "bold",
+                        family: "Arial"
+                    },
+                    color: "#ABB"
+                },
+                legend: {
+                    display: false
                 }
             },
             responsive: true,
-            maintainAspectRatio: true
+            maintainAspectRatio: false
         },
-        plugins: {
-            title: {
-                display: true,
-                text: title,
-                font: {
-                    size: 10,
-                    weight: "bold",
-                    family: "Arial"
-                },
-                color: "#333"
-            }
-        }
     }
 }
