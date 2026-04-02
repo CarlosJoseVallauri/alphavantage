@@ -13,6 +13,10 @@
     width: fit-content;
 }
 
+.min-vh-75{
+    min-height: 75vh;
+}
+
 @media (max-width: 489px){
     .navbar-nav{
         display: block !important;

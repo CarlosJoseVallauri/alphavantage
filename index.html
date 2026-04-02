@@ -8,25 +8,24 @@
 
     <!--CSS-->
     <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./node_modules/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./node_modules/maplibre-gl/dist/maplibre-gl.css">
     <link rel="stylesheet" href="./style.css">
 
     <!--JS and ImportMap-->
     <script type="importmap">
         {
             "imports": {
-                "axios": "https://ga.jspm.io/npm:axios@1.13.6/index.js",
-                "bootstrap": "https://ga.jspm.io/npm:bootstrap@5.3.8/dist/js/bootstrap.esm.js",
-                "chart.js": "https://ga.jspm.io/npm:chart.js@4.5.1/dist/chart.js",
-                "chart.js/auto": "https://ga.jspm.io/npm:chart.js@4.5.1/auto/auto.js"
-            },
-            "scopes": {
-                "https://ga.jspm.io/": {
-                    "#lib/adapters/http.js": "https://ga.jspm.io/npm:axios@1.13.6/lib/helpers/null.js",
-                    "#lib/platform/node/classes/FormData.js": "https://ga.jspm.io/npm:axios@1.13.6/lib/helpers/null.js",
-                    "#lib/platform/node/index.js": "https://ga.jspm.io/npm:axios@1.13.6/lib/platform/browser/index.js",
-                    "@kurkle/color": "https://ga.jspm.io/npm:@kurkle/color@0.3.4/dist/color.esm.js",
-                    "@popperjs/core": "https://ga.jspm.io/npm:@popperjs/core@2.11.8/lib/index.js"
-                }
+                "axios": "./node_modules/axios/dist/esm/axios.min.js",
+                "bootstrap": "./node_modules/bootstrap/dist/js/bootstrap.esm.min.js",
+                "chart.js": "./node_modules/chart.js/dist/chart.js",
+                "chart.js/auto": "./node_modules/chart.js/auto/auto.js",
+                "maplibre-gl": "./node_modules/maplibre-gl/dist/maplibre-gl.js",
+                "@kurkle/color": "./node_modules/@kurkle/color/dist/color.esm.js",
+                "@popperjs/core": "./node_modules/@popperjs/core/lib/index.js",
+                "#lib/adapters/http.js": "./node_modules/axios/lib/helpers/null.js",
+                "#lib/platform/node/classes/FormData.js": "./node_modules/axios/lib/helpers/null.js",
+                "#lib/platform/node/index.js": "./node_modules/axios/lib/platform/browser/index.js"
             }
         }
     </script>
@@ -35,13 +34,16 @@
     <title>Alpha Vantage</title>
 </head>
 
-<body class="bg-dark">
-    <nav class="navbar navbar-dark bg-dark px-3">
+<body data-bs-theme="dark">
+    <nav class="navbar px-3">
         <a class="navbar-brand" href=" #"><b>ALPHA</b> VANTAGE</a>
 
         <div class="d-flex justify-content-sm-end justify-content-start">
-            <input class="form-control form-control-sm me-2 bg-secondary border-0 text-white" type="search"
-                placeholder="Cerca azienda..." aria-label="Cerca azienda"/>
+            <div class="position-relative d-flex align-items-center me-2">
+                <input id="search" class="form-control form-control-sm bg-secondary border-0" type="search"
+                    placeholder="Cerca azienda..." autocomplete="off" />
+                <ul class="dropdown-menu w-100" id="suggestions" role="menu"></ul>
+            </div>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
                 <span class="navbar-toggler-icon"></span>
@@ -50,25 +52,30 @@
 
         <div class="collapse navbar-collapse" id="navContent">
             <ul class="navbar-nav me-auto mb-2 mb-sm-0 d-flex align-items-end">
-                <li class="nav-item border-bottom border-2"><a class="nav-link active pe-none">Database JSON-Server</a></li>
-                <li class="nav-item border-bottom border-2 border-secondary text-start"><a class="nav-link">Database AlphaVantage</a></li>
+                <li class="nav-item border-bottom border-2 border-secondary text-start"><a
+                        class="nav-link active pe-none">Database JSON-Server</a></li>
+                <li class="nav-item border-bottom border-2 text-start"><a class="nav-link">Database AlphaVantage</a>
+                </li>
             </ul>
         </div>
     </nav>
 
-    <div class="container-fluid px-5 py-3">
-        <div class="row">
-            <section class="rounded bg-secondary bg-opacity-50 col-12">
-                <canvas id="chartCanvas"></canvas>
-            </section>
-        </div>
-        <div class="row">
-            <section class="rounded bg-secondary bg-opacity-50 col-6">
-                1
-            </section>
-            <section class="rounded bg-secondary bg-opacity-50 col-6">
-                3
-            </section>
+    <div id="statContent" class="container-fluid px-5 py-3 d-none">
+        <div class="row g-2">
+            <div class="col-12">
+                <section class="rounded border-2 rounded border p-2 min-vh-75">
+                    <canvas id="chartCanvas"></canvas>
+                </section>
+            </div>
+            <div class="col-md-7">
+                <section id="companyInfo" class="rounded border-2 rounded border p-5 h-100">
+                </section>
+            </div>
+            <div class="col-md-5">
+                <section class="rounded border-2 rounded border h-100">
+                    3
+                </section>
+            </div>
         </div>
     </div>
 </body>
