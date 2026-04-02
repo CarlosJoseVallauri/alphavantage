@@ -41,7 +41,7 @@
         <div class="d-flex justify-content-sm-end justify-content-start">
             <div class="position-relative d-flex align-items-center me-2">
                 <input id="search" class="form-control form-control-sm bg-secondary border-0" type="search"
-                    placeholder="Cerca azienda..." autocomplete="off" autofocus/>
+                    placeholder="Cerca azienda..." autocomplete="off" autofocus />
                 <ul class="dropdown-menu w-100" id="suggestions" role="menu"></ul>
             </div>
 
@@ -89,11 +89,28 @@
                 </section>
             </div>
             <div class="col-md-5">
-                <section class="rounded border-2 rounded border h-100">
-                    <button class="btn btn-success" id="downloadChart">Scarica grafico</button>
+                <section class="rounded border-2 rounded border h-100 min-vh-10">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-6 d-flex justify-content-center border-end">
+                            <button class="btn btn-success" id="downloadChart">Scarica grafico</button>
+                        </div>
+                        <div class="col-6 d-flex flex-column justify-content-center gap-2 ps-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="chartOptions" id="lineChart"
+                                    value="line" checked>
+                                <label class="form-check-label" for="lineChart">Grafico a linee</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="chartOptions" id="barChart"
+                                    value="bar">
+                                <label class="form-check-label" for="barChart">Grafico a barre</label>
+                            </div>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>
     </div>
 </body>
+
 </html>

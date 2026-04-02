@@ -21,6 +21,10 @@
     height: 75vh;
 }
 
+.min-vh-10{
+    min-height: 10vh;
+}
+
 .marquee {
   overflow: hidden;
   white-space: nowrap;

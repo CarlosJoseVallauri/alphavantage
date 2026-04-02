@@ -3,13 +3,15 @@ import "maplibre-gl";
 import { createChart } from "../lib/Chart.js";
 import { LOGO_DEV_KEY, MAPLIBRE_KEY } from "../lib/Environment.js";
 import ajax from "../lib/Ajax.js";
+import fuzzySearch from "../lib/Search.js";
 
-let Chart, Map;
+let Chart, Map, CurrentSuggestion = 0;
 
 document
     .querySelector("button.navbar-toggler")
     .addEventListener("click", () => bootstrap.Dropdown.getOrCreateInstance("#suggestions").hide());
 
+//TODO: Remove and switch to plain JSON-Server
 document
     .querySelectorAll("a.nav-link")
     .forEach(btn => {
@@ -42,17 +44,11 @@ document
             showSuggestions(this.value);
         }
 
+        //TODO: Remove and switch to plain JSON-Server
         const Name = this.value;
         const Results = (await ajax.sendRequest("GET", `${getServerURL("SYMBOL_SEARCH")}`, { keywords: Name }).catch(ajax.errore))?.data;
 
-        if (Results.length === 0) {
-            document.getElementById("statContent").classList.add("d-none");
-            document.getElementById("welcomePage").classList.remove("d-none");
-            Map?.remove();
-            Chart?.destroy();
-            return;
-        }
-
+        //TODO: Update to just button, no switch
         if (Results["Information"]) {
             if (document.querySelector("button.navbar-toggler").style.pointerEvents != "none") {
                 alert("Limite di AlphaVantage raggiunto.");
@@ -65,14 +61,64 @@ document
             return;
         }
 
-        displayInfo(Results[0] ? Results[0]["1. symbol"] : Results["bestMatches"][0]["1. symbol"], Name);
+        if(!Results || Results.length === 0){
+            return;
+        }
+
+        //TODO: Remove and switch to plain JSON-Server
+        if((await fuzzySearch(this.value)).length === 1){
+            displayInfo(Results[0] ? Results[0]["1. symbol"] : Results["bestMatches"][0]["1. symbol"], Name);
+        }
     });
+
+document
+    .getElementById("downloadChart")
+    .addEventListener("click", () => {
+        const Canvas = document.getElementById("chartCanvas");
+        const Download = document.createElement("a");
+        Download.href = Canvas.toDataURL();
+        Download.download = "";
+        Download.click();
+        URL.revokeObjectURL(Download.href);
+    });
+
+document
+    .getElementById('search')
+    .addEventListener('keydown', function (e) {
+        const items = document.querySelectorAll('#suggestions .dropdown-item');
+        if (CurrentSuggestion === -1) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            CurrentSuggestion = (CurrentSuggestion + 1) % items.length;
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            CurrentSuggestion = (CurrentSuggestion - 1 + items.length) % items.length;
+        } else if (e.key === 'Enter' && CurrentSuggestion >= 0) {
+            e.preventDefault();
+            items[CurrentSuggestion].click();
+            return;
+        } else {
+            return;
+        }
+
+        items.forEach(i => i.classList.remove('active'));
+        items[CurrentSuggestion].classList.add('active');
+    });
+
+document
+    .getElementsByName("chartOptions")
+    .forEach(opt => opt.addEventListener("click", function() { 
+        if(Chart){
+            Chart.config.type = this.value; 
+            Chart.update();
+        }
+    }));
 
 async function showSuggestions(value) {
     document.getElementById("suggestions").innerHTML = "";
 
-    (await ajax.sendRequest("GET", `${getServerURL("SYMBOL_SEARCH")}`).catch(ajax.errore))?.data
-        .filter(symbol => symbol["2. name"].includes(value) || symbol["1. symbol"].includes(value))
+    (await fuzzySearch(value))
         .forEach((symbol, i, array) => {
             const Option = document.createElement("li");
             Option.classList.add("dropdown-item", "text-wrap");
@@ -82,11 +128,17 @@ async function showSuggestions(value) {
             });
             document.getElementById("suggestions").append(Option);
 
+            if(i === 0){
+                Option.classList.add("active");
+            }
+
             if (i !== array.length - 1) {
                 const Divider = document.createElement("div");
                 Divider.classList.add("dropdown-divider");
                 document.getElementById("suggestions").append(Divider);
             }
+
+            CurrentSuggestion = 0;
         });
 
     if (document.getElementById("suggestions").childNodes.length === 0) {
@@ -94,28 +146,40 @@ async function showSuggestions(value) {
         Option.classList.add("dropdown-item", "text-wrap");
         Option.textContent = "Nessuna azienda trovata.";
         document.getElementById("suggestions").append(Option);
+        CurrentSuggestion = -1;
     }
 
     bootstrap.Dropdown.getOrCreateInstance("#suggestions").show();
 }
 
 async function displayInfo(Symbol, Name) {
+    if(!Map?.loaded()){
+        Map?.remove();
+    }
+    Chart?.destroy();
+    
+
     document.getElementById("welcomePage").classList.add("d-none");
     bootstrap.Dropdown.getOrCreateInstance("#suggestions").hide();
     document.getElementById("search").value = "";
+    document.getElementById("companyInfo").innerHTML = "";
 
     createInfoCard(Symbol);
 
+    //TODO: Remove and switch to plain JSON-Server
     const Series = (await ajax.sendRequest("GET", `${getServerURL("TIME_SERIES")}`, { symbol: Symbol }).catch(ajax.errore))?.data;
 
+    //TODO: Remove and switch to plain JSON-Server
     const Keys = Object.keys(Series[0]["Monthly Time Series"] || Series["Weekly Time Series"]).reverse();
     const Values = Object.values(Series[0]["Monthly Time Series"] || Series["Weekly Time Series"]).map(stock => stock["1. open"]).reverse();
 
+    //TODO: Remove and switch to plain JSON-Server
     Chart = createChart([`Ultimi stock per ${Name}`, `(Ultimo aggiornamento: ${Series[0]["Meta Data"]["3. Last Refreshed"] || Series["Meta Data"]["3. Last Refreshed"]})`], "chartCanvas", "line", Keys, Values);
     document.getElementById("statContent").classList.remove("d-none");
 }
 
 async function createInfoCard(Symbol) {
+    //TODO: Remove and switch to plain JSON-Server
     const Info = (await ajax.sendRequest("GET", `${getServerURL("OVERVIEW")}`, { Symbol }).catch(ajax.errore))?.data[0];
     const Address = (await ajax.sendRequest("GET", `https://api.maptiler.com/geocoding/${encodeURIComponent(Info["Address"])}.json?key=${MAPLIBRE_KEY}`).catch(ajax.errore))?.data;
 
@@ -124,7 +188,7 @@ async function createInfoCard(Symbol) {
         <div class='row align-items-center'>
             <div class='col-md-3 d-flex justify-content-center'>
                 <a href='${Info["OfficialSite"]}' title='Sito ufficiale'>
-                    <img class='img img-fluid rounded' src='https://img.logo.dev/ticker/${Symbol}?token=${LOGO_DEV_KEY}' alt='${Symbol} Logo'>
+                    <img class='img img-fluid rounded shadow' src='https://img.logo.dev/ticker/${Symbol}?token=${LOGO_DEV_KEY}' alt='${Symbol} Logo'>
                 </a>
             </div>
             <div class='col-md-9 d-flex align-items-center'>
@@ -154,36 +218,30 @@ async function createInfoCard(Symbol) {
         </div>
     `;
 
-    document.getElementById("mapModal").addEventListener("shown.bs.modal", () => {
-        Map = new maplibregl.Map({
-            container: "map",
-            center: Address.features[0].center,
-            zoom: 13,
-            interactive: false,
-            style: `https://api.maptiler.com/maps/hybrid/style.json?key=${MAPLIBRE_KEY}`
-        });
+    document
+        .getElementById("mapModal")
+        .addEventListener("shown.bs.modal", () => {
+            Map = new maplibregl.Map({
+                container: "map",
+                center: Address.features[0].center,
+                zoom: 13,
+                interactive: false,
+                style: `https://api.maptiler.com/maps/hybrid/style.json?key=${MAPLIBRE_KEY}`
+            });
 
-        new maplibregl.Marker({
-            draggable: false,
-            anchor: "center"
-        })
-            .setPopup(new maplibregl.Popup().setHTML(`<span class='text-black'>Sede ${Info["Name"]}</span>`))
-            .setLngLat(Address.features[0].center)
-            .addTo(Map);
-    }, { once: true });
+            new maplibregl.Marker({
+                draggable: false,
+                anchor: "center"
+            })
+                .setPopup(new maplibregl.Popup().setHTML(`<span class='text-black'>Sede ${Info["Name"]}</span>`))
+                .setLngLat(Address.features[0].center)
+                .addTo(Map);
+        }, { once: true });
 }
 
-document.getElementById("downloadChart").addEventListener("click", () => {
-    const Canvas = document.getElementById("chartCanvas");
-    const Download = document.createElement("a");
-    Download.href = Canvas.toDataURL();
-    Download.download = "";
-    Download.click();
-    URL.revokeObjectURL(Download.href);
-});
-
+//TODO: Remove and switch to plain JSON-Server
 export function getServerURL(func) {
-    const isLocal = document.querySelector("a.nav-link.active").textContent.includes("JSON");
+    const isLocal = document.querySelector("a.nav-link.active")?.textContent.includes("JSON") ?? true;
     let locFunc = func;
 
     if (func === "TIME_SERIES") {
