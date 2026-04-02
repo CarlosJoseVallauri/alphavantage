@@ -47,6 +47,7 @@ document
 
         if (Results.length === 0) {
             document.getElementById("statContent").classList.add("d-none");
+            document.getElementById("welcomePage").classList.remove("d-none");
             Map?.remove();
             Chart?.destroy();
             return;
@@ -64,7 +65,6 @@ document
             return;
         }
 
-        bootstrap.Dropdown.getOrCreateInstance("#suggestions").hide();
         displayInfo(Results[0] ? Results[0]["1. symbol"] : Results["bestMatches"][0]["1. symbol"], Name);
     });
 
@@ -79,7 +79,6 @@ async function showSuggestions(value) {
             Option.textContent = `${symbol["1. symbol"]} - ${symbol["2. name"]}`;
             Option.addEventListener("click", function () {
                 displayInfo(symbol["1. symbol"], symbol["2. name"]);
-                bootstrap.Dropdown.getOrCreateInstance("#suggestions").hide();
             });
             document.getElementById("suggestions").append(Option);
 
@@ -101,6 +100,10 @@ async function showSuggestions(value) {
 }
 
 async function displayInfo(Symbol, Name) {
+    document.getElementById("welcomePage").classList.add("d-none");
+    bootstrap.Dropdown.getOrCreateInstance("#suggestions").hide();
+    document.getElementById("search").value = "";
+
     createInfoCard(Symbol);
 
     const Series = (await ajax.sendRequest("GET", `${getServerURL("TIME_SERIES")}`, { symbol: Symbol }).catch(ajax.errore))?.data;
@@ -169,6 +172,15 @@ async function createInfoCard(Symbol) {
             .addTo(Map);
     }, { once: true });
 }
+
+document.getElementById("downloadChart").addEventListener("click", () => {
+    const Canvas = document.getElementById("chartCanvas");
+    const Download = document.createElement("a");
+    Download.href = Canvas.toDataURL();
+    Download.download = "";
+    Download.click();
+    URL.revokeObjectURL(Download.href);
+});
 
 export function getServerURL(func) {
     const isLocal = document.querySelector("a.nav-link.active").textContent.includes("JSON");

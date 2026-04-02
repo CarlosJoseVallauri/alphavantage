@@ -17,6 +17,28 @@
     min-height: 75vh;
 }
 
+.vh-75{
+    height: 75vh;
+}
+
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee *{
+  display: inline-block;
+}
+
+.marquee > * {
+    animation: marquee 10s linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0%); }
+  to   { transform: translateX(-50%); }
+}
+
 @media (max-width: 489px){
     .navbar-nav{
         display: block !important;
