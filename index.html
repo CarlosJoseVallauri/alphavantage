@@ -45,20 +45,48 @@
                 <ul class="dropdown-menu w-100" id="suggestions" role="menu"></ul>
             </div>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
-                <span class="navbar-toggler-icon"></span>
+            <button class="btn btn-update" type="button" 
+                    title="Richiedi aggiornamento ad Alpha Vantage"
+                    data-bs-toggle="modal" data-bs-target="#requestModal">
+                <span class="btn-update-icon"></span>
             </button>
         </div>
-
-        <div class="collapse navbar-collapse" id="navContent">
-            <ul class="navbar-nav me-auto mb-2 mb-sm-0 d-flex align-items-end">
-                <li class="nav-item border-bottom border-2 border-secondary text-start"><a
-                        class="nav-link active pe-none">Database JSON-Server</a></li>
-                <li class="nav-item border-bottom border-2 text-start"><a class="nav-link">Database AlphaVantage</a>
-                </li>
-            </ul>
-        </div>
     </nav>
+    
+    <div class="modal fade" id="requestModal" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-dark text-white border-0 px-4 pt-4 pb-2">
+                    <div>
+                        <p class="text-white-50 small mb-1 text-uppercase fw-semibold">Aggiorna database</p>
+                        <h5 class="modal-title fw-bold fs-4 mb-0" id="companyModalLabel">Richiesta ad Alpha Vantage</h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body px-4 py-4">
+                    <div id="successAlert" class="alert alert-success rounded-3 d-none" role="alert">
+                        Azienda aggiunta correttamente ai quattro endpoint.
+                    </div>
+                    <div id="errorAlert" class="alert alert-danger rounded-3 d-none" role="alert">
+                        Errore o limite raggiunto.
+                    </div>
+    
+                    <label for="companyName" class="form-label text-muted small fw-semibold text-uppercase">Nome azienda o parole chiave <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-lg rounded-3 border-2" id="companyName"
+                        placeholder="Google" autocomplete="off" required />
+                    <div class="invalid-feedback">Inserisci un nome</div>
+                </div>
+
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
+                    <button type="button" class="btn btn-dark rounded-3 px-4" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-light rounded-3 px-4 fw-semibold" id="saveBtn">Aggiorna database locale</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <div id="welcomePage" class="container-fluid flex-column d-flex px-5 py-3 justify-content-center vh-75">
         <h1 class="h1 text-center"><b>ALPHA</b> VANTAGE</h1>

@@ -8,29 +8,105 @@ import fuzzySearch from "../lib/Search.js";
 let Chart, Map, CurrentSuggestion = 0;
 
 document
-    .querySelector("button.navbar-toggler")
-    .addEventListener("click", () => bootstrap.Dropdown.getOrCreateInstance("#suggestions").hide());
+    .querySelector("a.navbar-brand")
+    .addEventListener("click", () => {
+        if(!Map?.loaded()){
+            Map?.remove();
+        }
+        Chart?.destroy();
+    
+        document.getElementById("welcomePage").classList.remove("d-none");
+        document.getElementById("statContent").classList.add("d-none");
+        bootstrap.Dropdown.getOrCreateInstance("#suggestions").hide();
+        document.getElementById("search").value = "";
+    })
 
-//TODO: Remove and switch to plain JSON-Server
 document
-    .querySelectorAll("a.nav-link")
-    .forEach(btn => {
-        btn
-            .addEventListener("click", function () {
-                const SIBLING = document.querySelector("a.nav-link.active");
-                this.classList.add("active", "pe-none");
-                this.parentElement.classList.add("border-secondary");
-                SIBLING.classList.remove("active", "pe-none");
-                SIBLING.parentElement.classList.remove("border-secondary");
-
-                if (this.textContent.includes("JSON")) {
-                    document.querySelector(".navbar-toggler-icon").style.backgroundImage = "url('./assets/logo/json-logo.png')";
-                }
-                else {
-                    document.querySelector(".navbar-toggler-icon").style.backgroundImage = "url('./assets/logo/av-logo.png')";
-                }
-            })
+    .getElementById("companyName")
+    .addEventListener("keydown", function(e) {
+        if(e.key === "Enter"){
+            document.getElementById("saveBtn").click();
+        }
     });
+
+document
+    .getElementById("saveBtn")
+    .addEventListener("click", async function(){
+        const Name = document.getElementById("companyName").value;
+
+        if(!Name || Name.length === 0){
+            document.querySelector(".invalid-feedback").style.display = "block";
+            return;
+        }
+
+        const Reset = () => {
+            this.previousElementSibling.style.display = "";
+            this.disabled = false;
+            this.textContent = "Aggiorna database locale";
+            document.getElementById("companyName").value = "";
+        };
+
+        const ShowAlert = (alert) => {
+            document.getElementById(alert).classList.remove("d-none");
+            setTimeout(_ => document.getElementById(alert).classList.add("d-none"), 3000);
+        }
+
+        document.querySelector(".invalid-feedback").style.display = "none";
+        this.previousElementSibling.style.display = "none";
+        this.disabled = true;
+        this.textContent = "Attendi...";
+
+        const SYMBOL = (await ajax.sendRequest("GET", ajax.AV_URL, {function: "SYMBOL_SEARCH", keywords: Name}).catch(ajax.errore))?.data;
+        if(!SYMBOL || !SYMBOL["bestMatches"] || SYMBOL["bestMatches"].length === 0){
+            Reset();
+            ShowAlert("errorAlert");
+            return;
+        }
+
+        await delay(1000);
+
+        const WEEKLY = (await ajax.sendRequest("GET", ajax.AV_URL, {function: "TIME_SERIES_WEEKLY", symbol: SYMBOL["bestMatches"][0]["1. symbol"]}).catch(ajax.errore))?.data;
+        if(!WEEKLY || !WEEKLY["Weekly Time Series"] || WEEKLY["Weekly Time Series"].length === 0){
+            Reset();
+            ShowAlert("errorAlert");
+            return;
+        }
+
+        await delay(1000);
+
+        const MONTHLY = (await ajax.sendRequest("GET", ajax.AV_URL, {function: "TIME_SERIES_MONTHLY", symbol: SYMBOL["bestMatches"][0]["1. symbol"]}).catch(ajax.errore))?.data;
+        if(!MONTHLY || !MONTHLY["Monthly Time Series"] || MONTHLY["Monthly Time Series"].length === 0){
+            Reset();
+            ShowAlert("errorAlert");
+            return;
+        }
+
+        await delay(1000);
+
+        const OVERVIEW = (await ajax.sendRequest("GET", ajax.AV_URL, {function: "OVERVIEW", symbol: SYMBOL["bestMatches"][0]["1. symbol"]}).catch(ajax.errore))?.data;
+        if(!OVERVIEW || !OVERVIEW["Symbol"]){
+            Reset();
+            ShowAlert("errorAlert");
+            return;
+        }
+
+        await ajax.sendRequest("POST", getServerURL("SYMBOL_SEARCH"), SYMBOL["bestMatches"][0]).catch(ajax.errore);
+
+        WEEKLY["symbol"] = SYMBOL["bestMatches"][0]["1. symbol"];
+        await ajax.sendRequest("POST", getServerURL("TIME_SERIES_WEEKLY"), WEEKLY).catch(ajax.errore);
+
+        MONTHLY["symbol"] = SYMBOL["bestMatches"][0]["1. symbol"];
+        await ajax.sendRequest("POST", getServerURL("TIME_SERIES_MONTHLY"), MONTHLY).catch(ajax.errore);
+
+        await ajax.sendRequest("POST", getServerURL("OVERVIEW"), OVERVIEW).catch(ajax.errore);
+
+        Reset();
+        ShowAlert("successAlert");
+    });
+
+async function delay(ms) {
+    return new Promise((res) => setTimeout(_ => res(), 1000));
+}
 
 document
     .querySelector("input[type=search]")
@@ -44,30 +120,30 @@ document
             showSuggestions(this.value);
         }
 
-        //TODO: Remove and switch to plain JSON-Server
         const Name = this.value;
         const Results = (await ajax.sendRequest("GET", `${getServerURL("SYMBOL_SEARCH")}`, { keywords: Name }).catch(ajax.errore))?.data;
 
         //TODO: Update to just button, no switch
-        if (Results["Information"]) {
-            if (document.querySelector("button.navbar-toggler").style.pointerEvents != "none") {
-                alert("Limite di AlphaVantage raggiunto.");
-                document.querySelector("a.nav-link.active").remove();
-                document.querySelector("a.nav-link").classList.add("active");
-                document.getElementById("navContent").remove();
-                document.querySelector("button.navbar-toggler").style.pointerEvents = "none";
-                document.querySelector(".navbar-toggler-icon").style.backgroundImage = "url('./assets/logo/json-logo.png')";
-            }
-            return;
-        }
+        // if (Results["Information"]) {
+        //     if (document.querySelector("button.navbar-toggler").style.pointerEvents != "none") {
+        //         alert("Limite di AlphaVantage raggiunto.");
+        //         document.querySelector("a.nav-link.active").remove();
+        //         document.querySelector("a.nav-link").classList.add("active");
+        //         document.getElementById("navContent").remove();
+        //         document.querySelector("button.navbar-toggler").style.pointerEvents = "none";
+        //     }
+        //     return;
+        // }
 
         if(!Results || Results.length === 0){
             return;
         }
 
         //TODO: Remove and switch to plain JSON-Server
+        // Results["bestMatches"][0]["1. symbol"]
+
         if((await fuzzySearch(this.value)).length === 1){
-            displayInfo(Results[0] ? Results[0]["1. symbol"] : Results["bestMatches"][0]["1. symbol"], Name);
+            displayInfo(Results[0]["1. symbol"], Name);
         }
     });
 
@@ -85,25 +161,25 @@ document
 document
     .getElementById('search')
     .addEventListener('keydown', function (e) {
-        const items = document.querySelectorAll('#suggestions .dropdown-item');
+        const Items = document.querySelectorAll('#suggestions .dropdown-item');
         if (CurrentSuggestion === -1) return;
 
         if (e.key === 'ArrowDown') {
             e.preventDefault();
-            CurrentSuggestion = (CurrentSuggestion + 1) % items.length;
+            CurrentSuggestion = (CurrentSuggestion + 1) % Items.length;
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
-            CurrentSuggestion = (CurrentSuggestion - 1 + items.length) % items.length;
+            CurrentSuggestion = (CurrentSuggestion - 1 + Items.length) % Items.length;
         } else if (e.key === 'Enter' && CurrentSuggestion >= 0) {
             e.preventDefault();
-            items[CurrentSuggestion].click();
+            Items[CurrentSuggestion].click();
             return;
         } else {
             return;
         }
 
-        items.forEach(i => i.classList.remove('active'));
-        items[CurrentSuggestion].classList.add('active');
+        Items.forEach(i => i.classList.remove('active'));
+        Items[CurrentSuggestion].classList.add('active');
     });
 
 document
@@ -166,21 +242,23 @@ async function displayInfo(Symbol, Name) {
 
     createInfoCard(Symbol);
 
-    //TODO: Remove and switch to plain JSON-Server
-    const Series = (await ajax.sendRequest("GET", `${getServerURL("TIME_SERIES")}`, { symbol: Symbol }).catch(ajax.errore))?.data;
+    const Series = (await ajax.sendRequest("GET", `${getServerURL("TIME_SERIES_MONTHLY")}`, { symbol: Symbol }).catch(ajax.errore))?.data;
 
-    //TODO: Remove and switch to plain JSON-Server
-    const Keys = Object.keys(Series[0]["Monthly Time Series"] || Series["Weekly Time Series"]).reverse();
-    const Values = Object.values(Series[0]["Monthly Time Series"] || Series["Weekly Time Series"]).map(stock => stock["1. open"]).reverse();
+    const Keys = Object.keys(Series[0]["Monthly Time Series"]).reverse();
+    const Values = Object.values(Series[0]["Monthly Time Series"]).map(stock => stock["1. open"]).reverse();
 
-    //TODO: Remove and switch to plain JSON-Server
-    Chart = createChart([`Ultimi stock per ${Name}`, `(Ultimo aggiornamento: ${Series[0]["Meta Data"]["3. Last Refreshed"] || Series["Meta Data"]["3. Last Refreshed"]})`], "chartCanvas", "line", Keys, Values);
+    Chart = createChart([`Ultimi stock per ${Name}`, `(Ultimo aggiornamento: ${Series[0]["Meta Data"]["3. Last Refreshed"]})`], "chartCanvas", "line", Keys, Values);
     document.getElementById("statContent").classList.remove("d-none");
 }
 
 async function createInfoCard(Symbol) {
-    //TODO: Remove and switch to plain JSON-Server
     const Info = (await ajax.sendRequest("GET", `${getServerURL("OVERVIEW")}`, { Symbol }).catch(ajax.errore))?.data[0];
+
+    if(!Info){
+        alert("Informazioni non trovate sul database.");
+        return;
+    }
+
     const Address = (await ajax.sendRequest("GET", `https://api.maptiler.com/geocoding/${encodeURIComponent(Info["Address"])}.json?key=${MAPLIBRE_KEY}`).catch(ajax.errore))?.data;
 
     const Main = document.getElementById("companyInfo");
@@ -240,13 +318,7 @@ async function createInfoCard(Symbol) {
 }
 
 //TODO: Remove and switch to plain JSON-Server
+// ${ajax.AV_URL}&function=${locFunc}
 export function getServerURL(func) {
-    const isLocal = document.querySelector("a.nav-link.active")?.textContent.includes("JSON") ?? true;
-    let locFunc = func;
-
-    if (func === "TIME_SERIES") {
-        locFunc += isLocal ? "_MONTHLY" : "_WEEKLY";
-    }
-
-    return isLocal ? `${ajax.JS_URL}/${locFunc}` : `${ajax.AV_URL}&function=${locFunc}`;
+    return `${ajax.JS_URL}/${func}`;
 }

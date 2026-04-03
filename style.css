@@ -1,7 +1,19 @@
-.navbar-toggler-icon{
-    background-image: url('./assets/logo/json-logo.png');
+.btn-update-icon{
+    background-image: url('./assets/logo/av-logo.png');
     height: 1em;
     background-size: cover;
+    display: inline-block;
+    width: 1.5em;
+    vertical-align: middle;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.btn-update{
+    padding: var(--bs-navbar-toggler-padding-y) var(--bs-navbar-toggler-padding-x);
+    font-size: var(--bs-navbar-toggler-font-size);
+    line-height: 1;
+    background-color: transparent;
 }
 
 .nav-link{
