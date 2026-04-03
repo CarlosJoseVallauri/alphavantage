@@ -123,18 +123,6 @@ document
         const Name = this.value;
         const Results = (await ajax.sendRequest("GET", `${getServerURL("SYMBOL_SEARCH")}`, { keywords: Name }).catch(ajax.errore))?.data;
 
-        //TODO: Update to just button, no switch
-        // if (Results["Information"]) {
-        //     if (document.querySelector("button.navbar-toggler").style.pointerEvents != "none") {
-        //         alert("Limite di AlphaVantage raggiunto.");
-        //         document.querySelector("a.nav-link.active").remove();
-        //         document.querySelector("a.nav-link").classList.add("active");
-        //         document.getElementById("navContent").remove();
-        //         document.querySelector("button.navbar-toggler").style.pointerEvents = "none";
-        //     }
-        //     return;
-        // }
-
         if(!Results || Results.length === 0){
             return;
         }
@@ -247,7 +235,7 @@ async function displayInfo(Symbol, Name) {
     const Keys = Object.keys(Series[0]["Monthly Time Series"]).reverse();
     const Values = Object.values(Series[0]["Monthly Time Series"]).map(stock => stock["1. open"]).reverse();
 
-    Chart = createChart([`Ultimi stock per ${Name}`, `(Ultimo aggiornamento: ${Series[0]["Meta Data"]["3. Last Refreshed"]})`], "chartCanvas", "line", Keys, Values);
+    Chart = createChart([`Ultimi stock per ${Name}`, `(Ultimo aggiornamento: ${Series[0]["Meta Data"]["3. Last Refreshed"]})`], "chartCanvas", document.querySelector("input[name=chartOptions]:checked").value, Keys, Values);
     document.getElementById("statContent").classList.remove("d-none");
 }
 
@@ -317,8 +305,6 @@ async function createInfoCard(Symbol) {
         }, { once: true });
 }
 
-//TODO: Remove and switch to plain JSON-Server
-// ${ajax.AV_URL}&function=${locFunc}
 export function getServerURL(func) {
     return `${ajax.JS_URL}/${func}`;
 }
