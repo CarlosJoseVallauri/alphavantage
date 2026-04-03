@@ -5,16 +5,16 @@ import { LOGO_DEV_KEY, MAPLIBRE_KEY } from "../lib/Environment.js";
 import ajax from "../lib/Ajax.js";
 import fuzzySearch from "../lib/Search.js";
 
-let Chart, Map, CurrentSuggestion = 0;
+let Chart, Map, CurrentSymbol, CurrentSuggestion = 0;
 
 document
     .querySelector("a.navbar-brand")
     .addEventListener("click", () => {
-        if(!Map?.loaded()){
+        if (!Map?.loaded()) {
             Map?.remove();
         }
         Chart?.destroy();
-    
+
         document.getElementById("welcomePage").classList.remove("d-none");
         document.getElementById("statContent").classList.add("d-none");
         bootstrap.Dropdown.getOrCreateInstance("#suggestions").hide();
@@ -23,18 +23,18 @@ document
 
 document
     .getElementById("companyName")
-    .addEventListener("keydown", function(e) {
-        if(e.key === "Enter"){
+    .addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
             document.getElementById("saveBtn").click();
         }
     });
 
 document
     .getElementById("saveBtn")
-    .addEventListener("click", async function(){
+    .addEventListener("click", async function () {
         const Name = document.getElementById("companyName").value;
 
-        if(!Name || Name.length === 0){
+        if (!Name || Name.length === 0) {
             document.querySelector(".invalid-feedback").style.display = "block";
             return;
         }
@@ -56,8 +56,8 @@ document
         this.disabled = true;
         this.textContent = "Attendi...";
 
-        const SYMBOL = (await ajax.sendRequest("GET", ajax.AV_URL, {function: "SYMBOL_SEARCH", keywords: Name}).catch(ajax.errore))?.data;
-        if(!SYMBOL || !SYMBOL["bestMatches"] || SYMBOL["bestMatches"].length === 0){
+        const SYMBOL = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "SYMBOL_SEARCH", keywords: Name }).catch(ajax.errore))?.data;
+        if (!SYMBOL || !SYMBOL["bestMatches"] || SYMBOL["bestMatches"].length === 0) {
             Reset();
             ShowAlert("errorAlert");
             return;
@@ -65,8 +65,8 @@ document
 
         await delay(1000);
 
-        const WEEKLY = (await ajax.sendRequest("GET", ajax.AV_URL, {function: "TIME_SERIES_WEEKLY", symbol: SYMBOL["bestMatches"][0]["1. symbol"]}).catch(ajax.errore))?.data;
-        if(!WEEKLY || !WEEKLY["Weekly Time Series"] || WEEKLY["Weekly Time Series"].length === 0){
+        const WEEKLY = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "TIME_SERIES_WEEKLY", symbol: SYMBOL["bestMatches"][0]["1. symbol"] }).catch(ajax.errore))?.data;
+        if (!WEEKLY || !WEEKLY["Weekly Time Series"] || WEEKLY["Weekly Time Series"].length === 0) {
             Reset();
             ShowAlert("errorAlert");
             return;
@@ -74,8 +74,8 @@ document
 
         await delay(1000);
 
-        const MONTHLY = (await ajax.sendRequest("GET", ajax.AV_URL, {function: "TIME_SERIES_MONTHLY", symbol: SYMBOL["bestMatches"][0]["1. symbol"]}).catch(ajax.errore))?.data;
-        if(!MONTHLY || !MONTHLY["Monthly Time Series"] || MONTHLY["Monthly Time Series"].length === 0){
+        const MONTHLY = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "TIME_SERIES_MONTHLY", symbol: SYMBOL["bestMatches"][0]["1. symbol"] }).catch(ajax.errore))?.data;
+        if (!MONTHLY || !MONTHLY["Monthly Time Series"] || MONTHLY["Monthly Time Series"].length === 0) {
             Reset();
             ShowAlert("errorAlert");
             return;
@@ -83,8 +83,8 @@ document
 
         await delay(1000);
 
-        const OVERVIEW = (await ajax.sendRequest("GET", ajax.AV_URL, {function: "OVERVIEW", symbol: SYMBOL["bestMatches"][0]["1. symbol"]}).catch(ajax.errore))?.data;
-        if(!OVERVIEW || !OVERVIEW["Symbol"]){
+        const OVERVIEW = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "OVERVIEW", symbol: SYMBOL["bestMatches"][0]["1. symbol"] }).catch(ajax.errore))?.data;
+        if (!OVERVIEW || !OVERVIEW["Symbol"]) {
             Reset();
             ShowAlert("errorAlert");
             return;
@@ -123,14 +123,11 @@ document
         const Name = this.value;
         const Results = (await ajax.sendRequest("GET", `${getServerURL("SYMBOL_SEARCH")}`, { keywords: Name }).catch(ajax.errore))?.data;
 
-        if(!Results || Results.length === 0){
+        if (!Results || Results.length === 0) {
             return;
         }
 
-        //TODO: Remove and switch to plain JSON-Server
-        // Results["bestMatches"][0]["1. symbol"]
-
-        if((await fuzzySearch(this.value)).length === 1){
+        if ((await fuzzySearch(this.value)).length === 1) {
             displayInfo(Results[0]["1. symbol"], Name);
         }
     });
@@ -172,9 +169,24 @@ document
 
 document
     .getElementsByName("chartOptions")
-    .forEach(opt => opt.addEventListener("click", function() { 
-        if(Chart){
-            Chart.config.type = this.value; 
+    .forEach(opt => opt.addEventListener("click", function () {
+        if (Chart) {
+            Chart.config.type = this.value;
+            Chart.update();
+        }
+    }));
+
+document
+    .getElementsByName("timeOptions")
+    .forEach(opt => opt.addEventListener("click", async function () {
+        if (Chart) {
+            const Series = (await ajax.sendRequest("GET", `${getServerURL(`TIME_SERIES_${this.value.toUpperCase()}`)}`, { symbol: CurrentSymbol }).catch(ajax.errore))?.data;
+            const Keys = Object.keys(Series[0][`${this.value} Time Series`]).reverse();
+            const Values = Object.values(Series[0][`${this.value} Time Series`]).map(stock => stock["1. open"]).reverse();
+            Chart.config.data = {
+                labels: Keys,
+                datasets: [{ data: Values }]
+            };
             Chart.update();
         }
     }));
@@ -192,7 +204,7 @@ async function showSuggestions(value) {
             });
             document.getElementById("suggestions").append(Option);
 
-            if(i === 0){
+            if (i === 0) {
                 Option.classList.add("active");
             }
 
@@ -217,11 +229,12 @@ async function showSuggestions(value) {
 }
 
 async function displayInfo(Symbol, Name) {
-    if(!Map?.loaded()){
+    if (!Map?.loaded()) {
         Map?.remove();
     }
     Chart?.destroy();
-    
+
+    CurrentSymbol = Symbol;
 
     document.getElementById("welcomePage").classList.add("d-none");
     bootstrap.Dropdown.getOrCreateInstance("#suggestions").hide();
@@ -230,10 +243,11 @@ async function displayInfo(Symbol, Name) {
 
     createInfoCard(Symbol);
 
-    const Series = (await ajax.sendRequest("GET", `${getServerURL("TIME_SERIES_MONTHLY")}`, { symbol: Symbol }).catch(ajax.errore))?.data;
+    const Time = document.querySelector("input[name=timeOptions]:checked").value;
+    const Series = (await ajax.sendRequest("GET", `${getServerURL(`TIME_SERIES_${Time.toUpperCase()}`)}`, { symbol: Symbol }).catch(ajax.errore))?.data;
 
-    const Keys = Object.keys(Series[0]["Monthly Time Series"]).reverse();
-    const Values = Object.values(Series[0]["Monthly Time Series"]).map(stock => stock["1. open"]).reverse();
+    const Keys = Object.keys(Series[0][`${Time} Time Series`]).reverse();
+    const Values = Object.values(Series[0][`${Time} Time Series`]).map(stock => stock["1. open"]).reverse();
 
     Chart = createChart([`Ultimi stock per ${Name}`, `(Ultimo aggiornamento: ${Series[0]["Meta Data"]["3. Last Refreshed"]})`], "chartCanvas", document.querySelector("input[name=chartOptions]:checked").value, Keys, Values);
     document.getElementById("statContent").classList.remove("d-none");
@@ -242,7 +256,7 @@ async function displayInfo(Symbol, Name) {
 async function createInfoCard(Symbol) {
     const Info = (await ajax.sendRequest("GET", `${getServerURL("OVERVIEW")}`, { Symbol }).catch(ajax.errore))?.data[0];
 
-    if(!Info){
+    if (!Info) {
         alert("Informazioni non trovate sul database.");
         return;
     }

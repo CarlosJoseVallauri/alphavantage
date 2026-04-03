@@ -47,14 +47,13 @@
                 <ul class="dropdown-menu w-100" id="suggestions" role="menu"></ul>
             </div>
 
-            <button class="btn btn-update" type="button" 
-                    title="Richiedi aggiornamento ad Alpha Vantage"
-                    data-bs-toggle="modal" data-bs-target="#requestModal">
+            <button class="btn btn-update" type="button" title="Richiedi aggiornamento ad Alpha Vantage"
+                data-bs-toggle="modal" data-bs-target="#requestModal">
                 <span class="btn-update-icon"></span>
             </button>
         </div>
     </nav>
-    
+
     <div class="modal fade" id="requestModal" role="dialog">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
@@ -74,8 +73,9 @@
                     <div id="errorAlert" class="alert alert-danger rounded-3 d-none" role="alert">
                         Errore o limite raggiunto.
                     </div>
-    
-                    <label for="companyName" class="form-label text-muted small fw-semibold text-uppercase">Nome azienda o parole chiave <span class="text-danger">*</span></label>
+
+                    <label for="companyName" class="form-label text-muted small fw-semibold text-uppercase">Nome azienda
+                        o parole chiave <span class="text-danger">*</span></label>
                     <input type="text" class="form-control form-control-lg rounded-3 border-2" id="companyName"
                         placeholder="Google" autocomplete="off" required />
                     <div class="invalid-feedback">Inserisci un nome</div>
@@ -83,7 +83,8 @@
 
                 <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
                     <button type="button" class="btn btn-dark rounded-3 px-4" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-light rounded-3 px-4 fw-semibold" id="saveBtn">Aggiorna database locale</button>
+                    <button type="button" class="btn btn-light rounded-3 px-4 fw-semibold" id="saveBtn">Aggiorna
+                        database locale</button>
                 </div>
 
             </div>
@@ -121,10 +122,10 @@
             <div class="col-md-5">
                 <section class="rounded border-2 rounded border h-100 min-vh-10">
                     <div class="row h-100 align-items-center">
-                        <div class="col-6 d-flex justify-content-center border-end">
+                        <div class="col-12 col-md-4 d-flex justify-content-center py-2">
                             <button class="btn btn-success" id="downloadChart">Scarica grafico</button>
                         </div>
-                        <div class="col-6 d-flex flex-column justify-content-center gap-2 ps-4">
+                        <div class="col-12 col-md-4 d-flex flex-column align-items-center align-items-md-start justify-content-center gap-2 ps-3 border-md-start border-md-end py-2">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="chartOptions" id="lineChart"
                                     value="line" checked>
@@ -139,6 +140,18 @@
                                 <input class="form-check-input" type="radio" name="chartOptions" id="bubbleChart"
                                     value="bubble">
                                 <label class="form-check-label" for="bubbleChart">Grafico a bolle</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 d-flex flex-column align-items-center align-items-md-start justify-content-center gap-2 ps-3 py-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="timeOptions" id="monthlySeries"
+                                    value="Monthly" checked>
+                                <label class="form-check-label text-break" for="monthlySeries">Dati mensili</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="timeOptions" id="weeklySeries"
+                                    value="Weekly">
+                                <label class="form-check-label text-break" for="weeklySeries">Dati settimanali</label>
                             </div>
                         </div>
                     </div>
