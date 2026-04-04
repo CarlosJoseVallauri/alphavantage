@@ -47,6 +47,7 @@ document
             document.getElementById("companyDrop").disabled = false;
             document.getElementById("companyList").classList.add("d-none");
             document.getElementById("companyDrop").innerHTML = "";
+            document.getElementById("companyName").disabled = false;
         };
 
         const ShowAlert = (alert) => {
@@ -66,6 +67,7 @@ document
             return;
         }
 
+        document.getElementById("companyName").disabled = true;
         document.getElementById("companyList").classList.remove("d-none");
         document.getElementById("companyDrop").innerHTML += `<option value="" disabled selected hidden>Seleziona un'azienda...</option>`;
         document.getElementById("companyDrop").selectedIndex = 0;
