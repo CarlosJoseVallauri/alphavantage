@@ -44,6 +44,8 @@ document
             this.disabled = false;
             this.textContent = "Aggiorna database locale";
             document.getElementById("companyName").value = "";
+            document.getElementById("companyDrop").disabled = false;
+            document.getElementById("companyDrop").innerHTML = "";
         };
 
         const ShowAlert = (alert) => {
@@ -70,6 +72,7 @@ document
         });
 
         document.getElementById("companyDrop").addEventListener("change", async function () {
+            this.disabled = true;
             const SYMB = this.value;
 
             await delay(1000);
