@@ -63,45 +63,57 @@ document
             return;
         }
 
-        await delay(1000);
+        document.getElementById("companyList").classList.remove("d-none");
 
-        const WEEKLY = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "TIME_SERIES_WEEKLY", symbol: SYMBOL["bestMatches"][0]["1. symbol"] }).catch(ajax.errore))?.data;
-        if (!WEEKLY || !WEEKLY["Weekly Time Series"] || WEEKLY["Weekly Time Series"].length === 0) {
+        SYMBOL["bestMatches"].forEach(sy => {
+            document.getElementById("companyDrop").innerHTML += `<option data-symbol='${JSON.stringify(sy)}' value=${sy["1. symbol"]}>${sy["2. name"]}</option>`;
+        });
+
+        document.getElementById("companyDrop").addEventListener("change", async function () {
+            const SYMB = this.value;
+
+            await delay(1000);
+
+            const WEEKLY = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "TIME_SERIES_WEEKLY", symbol: SYMB }).catch(ajax.errore))?.data;
+            if (!WEEKLY || !WEEKLY["Weekly Time Series"] || WEEKLY["Weekly Time Series"].length === 0) {
+                Reset();
+                ShowAlert("errorAlert");
+                return;
+            }
+
+            await delay(1000);
+
+            const MONTHLY = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "TIME_SERIES_MONTHLY", symbol: SYMB }).catch(ajax.errore))?.data;
+            if (!MONTHLY || !MONTHLY["Monthly Time Series"] || MONTHLY["Monthly Time Series"].length === 0) {
+                Reset();
+                ShowAlert("errorAlert");
+                return;
+            }
+
+            await delay(1000);
+
+            const OVERVIEW = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "OVERVIEW", symbol: SYMB }).catch(ajax.errore))?.data;
+            if (!OVERVIEW || !OVERVIEW["Symbol"]) {
+                Reset();
+                ShowAlert("errorAlert");
+                return;
+            }
+
+            console.log(this.options[this.selectedIndex].dataset.symbol)
+
+            await ajax.sendRequest("POST", getServerURL("SYMBOL_SEARCH"), JSON.parse(this.options[this.selectedIndex].dataset.symbol)).catch(ajax.errore);
+
+            WEEKLY["symbol"] = SYMB;
+            await ajax.sendRequest("POST", getServerURL("TIME_SERIES_WEEKLY"), WEEKLY).catch(ajax.errore);
+
+            MONTHLY["symbol"] = SYMB;
+            await ajax.sendRequest("POST", getServerURL("TIME_SERIES_MONTHLY"), MONTHLY).catch(ajax.errore);
+
+            await ajax.sendRequest("POST", getServerURL("OVERVIEW"), OVERVIEW).catch(ajax.errore);
+
             Reset();
-            ShowAlert("errorAlert");
-            return;
-        }
-
-        await delay(1000);
-
-        const MONTHLY = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "TIME_SERIES_MONTHLY", symbol: SYMBOL["bestMatches"][0]["1. symbol"] }).catch(ajax.errore))?.data;
-        if (!MONTHLY || !MONTHLY["Monthly Time Series"] || MONTHLY["Monthly Time Series"].length === 0) {
-            Reset();
-            ShowAlert("errorAlert");
-            return;
-        }
-
-        await delay(1000);
-
-        const OVERVIEW = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "OVERVIEW", symbol: SYMBOL["bestMatches"][0]["1. symbol"] }).catch(ajax.errore))?.data;
-        if (!OVERVIEW || !OVERVIEW["Symbol"]) {
-            Reset();
-            ShowAlert("errorAlert");
-            return;
-        }
-
-        await ajax.sendRequest("POST", getServerURL("SYMBOL_SEARCH"), SYMBOL["bestMatches"][0]).catch(ajax.errore);
-
-        WEEKLY["symbol"] = SYMBOL["bestMatches"][0]["1. symbol"];
-        await ajax.sendRequest("POST", getServerURL("TIME_SERIES_WEEKLY"), WEEKLY).catch(ajax.errore);
-
-        MONTHLY["symbol"] = SYMBOL["bestMatches"][0]["1. symbol"];
-        await ajax.sendRequest("POST", getServerURL("TIME_SERIES_MONTHLY"), MONTHLY).catch(ajax.errore);
-
-        await ajax.sendRequest("POST", getServerURL("OVERVIEW"), OVERVIEW).catch(ajax.errore);
-
-        Reset();
-        ShowAlert("successAlert");
+            ShowAlert("successAlert");
+        })
     });
 
 async function delay(ms) {

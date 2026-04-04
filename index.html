@@ -79,6 +79,12 @@
                     <input type="text" class="form-control form-control-lg rounded-3 border-2" id="companyName"
                         placeholder="Google" autocomplete="off" required />
                     <div class="invalid-feedback">Inserisci un nome</div>
+
+                    <div id="companyList" class="d-none mt-3">
+                        <label for="companyDrop" class="form-label text-muted small fw-semibold text-uppercase d-none"> Aziende trovate </label>
+                        <select class="form-select form-select-lg rounded-3 border-2" id="companyDrop">
+                        </select>
+                    </div>
                 </div>
 
                 <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2">
@@ -125,7 +131,8 @@
                         <div class="col-12 col-md-4 d-flex justify-content-center py-2">
                             <button class="btn btn-success" id="downloadChart">Scarica grafico</button>
                         </div>
-                        <div class="col-12 col-md-4 d-flex flex-column align-items-center align-items-md-start justify-content-center gap-2 ps-3 border-md-start border-md-end py-2">
+                        <div
+                            class="col-12 col-md-4 d-flex flex-column align-items-center align-items-md-start justify-content-center gap-2 ps-3 border-md-start border-md-end py-2">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="chartOptions" id="lineChart"
                                     value="line" checked>
@@ -142,7 +149,8 @@
                                 <label class="form-check-label" for="bubbleChart">Grafico a bolle</label>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4 d-flex flex-column align-items-center align-items-md-start justify-content-center gap-2 ps-3 py-2">
+                        <div
+                            class="col-12 col-md-4 d-flex flex-column align-items-center align-items-md-start justify-content-center gap-2 ps-3 py-2">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="timeOptions" id="monthlySeries"
                                     value="Monthly" checked>
