@@ -105,7 +105,7 @@ document
             const OVERVIEW = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "OVERVIEW", symbol: SYMB }).catch(ajax.errore))?.data;
             if (!OVERVIEW || !OVERVIEW["Symbol"]) {
                 Reset();
-                ShowAlert("errorAlert", "OVERVIERW non trovato o limite raggiunto.");
+                ShowAlert("errorAlert", "OVERVIEW non trovato o limite raggiunto.");
                 return;
             }
 
