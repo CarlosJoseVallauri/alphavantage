@@ -6,6 +6,7 @@ import ajax from "../lib/Ajax.js";
 import fuzzySearch from "../lib/Search.js";
 
 let Chart, Map, CurrentSymbol, CurrentSuggestion = 0;
+const Alerts = {};
 
 document
     .querySelector("a.navbar-brand")
@@ -54,7 +55,9 @@ document
             document.getElementById(alert).classList.remove("d-none");
             if(text)
                 document.getElementById(alert).textContent = text;
-            setTimeout(_ => document.getElementById(alert).classList.add("d-none"), 3000);
+            
+            clearTimeout(Alerts[alert]);
+            Alerts[alert] = setTimeout(_ => document.getElementById(alert).classList.add("d-none"), 3000);
         }
 
         document.querySelector(".invalid-feedback").style.display = "none";
