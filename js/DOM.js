@@ -50,8 +50,10 @@ document
             document.getElementById("companyName").disabled = false;
         };
 
-        const ShowAlert = (alert) => {
+        const ShowAlert = (alert, text) => {
             document.getElementById(alert).classList.remove("d-none");
+            if(text)
+                document.getElementById(alert).textContent = text;
             setTimeout(_ => document.getElementById(alert).classList.add("d-none"), 3000);
         }
 
@@ -63,7 +65,7 @@ document
         const SYMBOL = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "SYMBOL_SEARCH", keywords: Name }).catch(ajax.errore))?.data;
         if (!SYMBOL || !SYMBOL["bestMatches"] || SYMBOL["bestMatches"].length === 0) {
             Reset();
-            ShowAlert("errorAlert");
+            ShowAlert("errorAlert", "SYMBOL non trovato o limite raggiunto.");
             return;
         }
 
@@ -85,7 +87,7 @@ document
             const WEEKLY = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "TIME_SERIES_WEEKLY", symbol: SYMB }).catch(ajax.errore))?.data;
             if (!WEEKLY || !WEEKLY["Weekly Time Series"] || WEEKLY["Weekly Time Series"].length === 0) {
                 Reset();
-                ShowAlert("errorAlert");
+                ShowAlert("errorAlert", "TIME_SERIES_WEEKLY non trovato o limite raggiunto.");
                 return;
             }
 
@@ -94,7 +96,7 @@ document
             const MONTHLY = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "TIME_SERIES_MONTHLY", symbol: SYMB }).catch(ajax.errore))?.data;
             if (!MONTHLY || !MONTHLY["Monthly Time Series"] || MONTHLY["Monthly Time Series"].length === 0) {
                 Reset();
-                ShowAlert("errorAlert");
+                ShowAlert("errorAlert", "MONTHLY_TIME_SERIES non trovato o limite raggiunto.");
                 return;
             }
 
@@ -103,7 +105,7 @@ document
             const OVERVIEW = (await ajax.sendRequest("GET", ajax.AV_URL, { function: "OVERVIEW", symbol: SYMB }).catch(ajax.errore))?.data;
             if (!OVERVIEW || !OVERVIEW["Symbol"]) {
                 Reset();
-                ShowAlert("errorAlert");
+                ShowAlert("errorAlert", "OVERVIERW non trovato o limite raggiunto.");
                 return;
             }
 
