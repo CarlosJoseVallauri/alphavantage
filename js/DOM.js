@@ -45,6 +45,7 @@ document
             this.textContent = "Aggiorna database locale";
             document.getElementById("companyName").value = "";
             document.getElementById("companyDrop").disabled = false;
+            document.getElementById("companyList").classList.add("d-none");
             document.getElementById("companyDrop").innerHTML = "";
         };
 
@@ -66,9 +67,11 @@ document
         }
 
         document.getElementById("companyList").classList.remove("d-none");
+        document.getElementById("companyDrop").innerHTML += `<option value="" disabled selected hidden>Seleziona un'azienda...</option>`;
+        document.getElementById("companyDrop").selectedIndex = 0;
 
         SYMBOL["bestMatches"].forEach(sy => {
-            document.getElementById("companyDrop").innerHTML += `<option data-symbol='${JSON.stringify(sy)}' value=${sy["1. symbol"]}>${sy["2. name"]}</option>`;
+            document.getElementById("companyDrop").innerHTML += `<option data-symbol='${JSON.stringify(sy)}' value=${sy["1. symbol"]}>${sy["1. symbol"]} - ${sy["2. name"]}</option>`;
         });
 
         document.getElementById("companyDrop").addEventListener("change", async function () {
@@ -102,8 +105,6 @@ document
                 return;
             }
 
-            console.log(this.options[this.selectedIndex].dataset.symbol)
-
             await ajax.sendRequest("POST", getServerURL("SYMBOL_SEARCH"), JSON.parse(this.options[this.selectedIndex].dataset.symbol)).catch(ajax.errore);
 
             WEEKLY["symbol"] = SYMB;
@@ -120,7 +121,7 @@ document
     });
 
 async function delay(ms) {
-    return new Promise((res) => setTimeout(_ => res(), 1000));
+    return new Promise((res) => setTimeout(res, ms));
 }
 
 document
