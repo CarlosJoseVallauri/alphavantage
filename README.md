@@ -10,7 +10,7 @@ La casella di testo apposita permette di effettuare una ricerca "fuzzy" tra le a
 
 ### **Aggiornamento dati**
 
-Il pulsante posto in alto a destra permette, attraverso una modale, di aggiungere un azienda ai vari endpoint di JSON-Server.
+Il pulsante posto in alto a destra (logo di Alpha Vantage) permette, attraverso una modale, di aggiungere un azienda ai vari endpoint di JSON-Server.
 
 ### Schermata principale
 
